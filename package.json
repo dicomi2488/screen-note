@@ -1,0 +1,12 @@
+{
+  "name": "screen-note",
+  "version": "0.1.0",
+  "description": "Screen Note — overlay web drawing tool",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -c-1 ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}

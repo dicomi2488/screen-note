@@ -1,0 +1,12 @@
+INFO 2025-10-27 01:14:06,208 Auth info was exported to ./.tmp/auth_info.json api\debug\debug.cpp:17 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:14:07,893 NE_RS_UNBLDRE: Unable to load application resource file /.well-known/appspecific/com.chrome.devtools.json api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:14:08,156 NE_RS_UNBLDRE: Unable to load application resource file /favicon.ico api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+INFO 2025-10-27 01:19:55,464 Auth info was exported to ./.tmp/auth_info.json api\debug\debug.cpp:17 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:19:57,032 NE_RS_UNBLDRE: Unable to load application resource file /.well-known/appspecific/com.chrome.devtools.json api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:19:57,299 NE_RS_UNBLDRE: Unable to load application resource file /favicon.ico api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+INFO 2025-10-27 01:23:48,665 Auth info was exported to ./.tmp/auth_info.json api\debug\debug.cpp:17 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:23:50,177 NE_RS_UNBLDRE: Unable to load application resource file /favicon.ico api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:23:50,305 NE_RS_UNBLDRE: Unable to load application resource file /.well-known/appspecific/com.chrome.devtools.json api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+INFO 2025-10-27 01:27:25,759 Auth info was exported to ./.tmp/auth_info.json api\debug\debug.cpp:17 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:27:27,396 NE_RS_UNBLDRE: Unable to load application resource file /.well-known/appspecific/com.chrome.devtools.json api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H
+ERROR 2025-10-27 01:27:27,611 NE_RS_UNBLDRE: Unable to load application resource file /favicon.ico api\debug\debug.cpp:20 dicomi@DESKTOP-2N59L7H

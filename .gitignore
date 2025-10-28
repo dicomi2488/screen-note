@@ -1,0 +1,22 @@
+# System
+Thumbs.db
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Node (如果后面会引入构建工具)
+node_modules/
+dist/
+.cache/
+
+# Editor
+.vscode/
+.idea/
+
+# Misc
+*.zip
+*.bak
