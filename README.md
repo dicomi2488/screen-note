@@ -67,9 +67,10 @@ Compress-Archive -Path 'dist\*' -DestinationPath "release\screen-note-0.1.0.zip"
 ## 后续计划 / TODO
 
 - [ ] 打包项目软件，框架可能用Tauri,但是鼠标透传好像比较难实现
-- [ ] 原生层改为严格 JSON 解析（当前基于简单字符串匹配）
 - [ ] 增加最小自动化测试（历史撤销、笔迹采样平滑）
-- [ ] 文档中加入架构图示意
+- [ ] 自定义快捷键
+- [ ] 自定义默认颜色
+- [ ] 橡皮：圈选擦除
 
 ## License
 
