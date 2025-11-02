@@ -1,0 +1,53 @@
+# Tauri build outputs
+src-tauri/target/
+src-tauri/gen/
+src-tauri/Cargo.lock
+src-tauri/.gitignore
+dist/
+
+# Test files and configs
+passthrough-test.html
+resources/
+src-tauri/src/main-test.rs
+src-tauri/tauri.passthrough-test.json
+src-tauri/tauri.test.conf.json
+src-tauri/tauri.debug.json
+src-tauri/tauri.minimal.json
+index-debug.html
+index-minimal.html
+mouse-passthrough-test.html
+test-*.html
+*.bat
+*.ps1
+
+# Old/backup files
+src/ui/floating-button-old.js
+src/core/passthrough-manager.js
+src/main/
+
+# Documentation (development notes)
+*.md
+!README.md
+
+# Node modules
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Other
+.taurignore
+.github/

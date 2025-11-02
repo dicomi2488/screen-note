@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Note</title>
+    <link rel="stylesheet" href="src/ui/styles.css" />
+</head>
+<body>
+    <div id="app-root"></div>
+
+    <script type="module">
+        import EventBus from './src/core/event-bus.js';
+        import CanvasManager from './src/core/canvas-manager.js';
+        import PenTool from './src/core/pen-tool.js';
+        import EraserTool from './src/core/eraser-tool.js';
+        import PointerTool from './src/core/pointer-tool.js';
+        import HistoryManager from './src/core/history-manager.js';
+        import StrokeIndex from './src/core/stroke-index.js';
+        import FloatingButton from './src/ui/floating-button.js';
+        import SettingsModal from './src/ui/settings-modal.js';
+
+        // 初始化
+        const bus = new EventBus();
+        const canvasManager = new CanvasManager({ bus });
+        const history = new HistoryManager({ bus });
+        const strokeIndex = new StrokeIndex({ bus, history });
+        const pen = new PenTool({ canvasManager, history, bus });
+        const eraser = new EraserTool({ canvasManager, history, bus });
+        const pointer = new PointerTool({ canvasManager, bus });
+        const settings = new SettingsModal({ bus });
+        const floating = new FloatingButton({ bus });
+        
+        console.log('[ScreenNote] UI 已创建');
+
+        // 等待 Tauri API 和 DOM
+        function init() {
+            if (!window.__TAURI__) {
+                setTimeout(init, 100);
+                return;
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            console.log('[ScreenNote] Tauri API 已就绪');
+            
+            // 等待 DOM 渲染
+            setTimeout(async () => {
+                // 收集 UI 区域
+                function collectRegions() {
+                    const regions = [];
+                    const expand = 1; // 每边扩展 1px，总共大 2px
+                    
+                    // 主按钮
+                    if (floating?.root && document.body.contains(floating.root)) {
+                        const rect = floating.root.getBoundingClientRect();
+                        console.log('[collectRegions] 主按钮 rect:', rect);
+                        if (rect.width > 0) {
+                            regions.push({
+                                x: Math.round(rect.left - expand),
+                                y: Math.round(rect.top - expand),
+                                width: Math.round(rect.width + expand * 2),
+                                height: Math.round(rect.height + expand * 2)
+                            });
+                        }
+                    } else {
+                        console.warn('[collectRegions] 主按钮未找到！floating.root:', floating?.root);
+                    }
+                    
+                    // 工具按钮（独立元素）
+                    if (floating?._toolElements) {
+                        floating._toolElements.forEach(wrapper => {
+                            if (document.body.contains(wrapper)) {
+                                const rect = wrapper.getBoundingClientRect();
+                                if (rect.width > 0 && parseFloat(getComputedStyle(wrapper).opacity) > 0) {
+                                    regions.push({
+                                        x: Math.round(rect.left - expand),
+                                        y: Math.round(rect.top - expand),
+                                        width: Math.round(rect.width + expand * 2),
+                                        height: Math.round(rect.height + expand * 2)
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    
+                    // 画笔面板
+                    if (floating?.penPanel?.root?.classList.contains('is-visible')) {
+                        const rect = floating.penPanel.root.getBoundingClientRect();
+                        if (rect.width > 0) {
+                            regions.push({
+                                x: Math.round(rect.left - expand),
+                                y: Math.round(rect.top - expand),
+                                width: Math.round(rect.width + expand * 2),
+                                height: Math.round(rect.height + expand * 2)
+                            });
+                        }
+                    }
+                    
+                    // 橡皮面板
+                    if (floating?.eraserPanel?.root?.classList.contains('is-visible')) {
+                        const rect = floating.eraserPanel.root.getBoundingClientRect();
+                        if (rect.width > 0) {
+                            regions.push({
+                                x: Math.round(rect.left - expand),
+                                y: Math.round(rect.top - expand),
+                                width: Math.round(rect.width + expand * 2),
+                                height: Math.round(rect.height + expand * 2)
+                            });
+                        }
+                    }
+                    
+                    return regions;
+                }
+                
+                // 启用透传
+                async function enablePassthrough() {
+                    const regions = collectRegions();
+                    console.log('[ScreenNote] 设置', regions.length, '个可交互区域', regions);
+                    await invoke('set_interactive_regions', { regions });
+                    console.log('[ScreenNote] ✅ 透传已启用');
+                }
+                
+                // 禁用透传
+                async function disablePassthrough() {
+                    await invoke('clear_interactive_regions');
+                    console.log('[ScreenNote] 透传已禁用');
+                }
+                
+                // 工具切换
+                let currentTool = 'pointer';
+                
+                bus.on('tool:select', async ({ tool }) => {
+                    if (!tool) return;
+                    
+                    if (tool === 'undo') {
+                        history.undo();
+                        canvasManager.renderStrokes(history.past);
+                        return;
+                    }
+                    
+                if (tool === 'settings') {
+                    await disablePassthrough();
+                    settings.show();
+                    return;
+                }                    currentTool = tool;
+                    pen.disable();
+                    eraser.disable();
+                    pointer.disable();
+                    
+                    if (tool === 'pen') {
+                        pen.enable();
+                        await disablePassthrough();
+                    } else if (tool === 'eraser') {
+                        eraser.enable();
+                        await disablePassthrough();
+                    } else if (tool === 'pointer') {
+                        pointer.enable();
+                        await enablePassthrough();
+                    }
+                });
+                
+                // 面板显示/隐藏时刷新
+                bus.on('ui:panel:show', async () => {
+                    if (currentTool === 'pointer') {
+                        setTimeout(() => enablePassthrough(), 100);
+                    }
+                });
+                
+                bus.on('ui:panel:hide', async () => {
+                    if (currentTool === 'pointer') {
+                        setTimeout(() => enablePassthrough(), 100);
+                    }
+                });
+                
+                // 设置界面关闭后自动切换到光标模式
+                bus.on('settings:closed', () => {
+                    bus.emit('tool:select', { tool: 'pointer' });
+                });
+                
+                // 浮动按钮展开/收起时刷新
+                bus.on('ui:floating:toggle', async () => {
+                    if (currentTool === 'pointer') {
+                        // 立即刷新一次（为动画开始生成框）
+                        await enablePassthrough();
+                        
+                        // 动画进行时 + 结束后 0.3s 内实时跟踪
+                        const animationDuration = 300; // ms
+                        const extraTrackingTime = 300; // 动画结束后继续跟踪 0.3s
+                        const totalDuration = animationDuration + extraTrackingTime;
+                        const startTime = Date.now();
+                        
+                        const trackAnimation = () => {
+                            const elapsed = Date.now() - startTime;
+                            if (elapsed < totalDuration) {
+                                enablePassthrough();
+                                requestAnimationFrame(trackAnimation);
+                            } else {
+                                // 最后刷新一次
+                                enablePassthrough();
+                            }
+                        };
+                        
+                        requestAnimationFrame(trackAnimation);
+                    }
+                });
+                
+                // 节流函数：避免频繁调用
+                let passthroughUpdateScheduled = false;
+                function schedulePassthroughUpdate() {
+                    if (!passthroughUpdateScheduled) {
+                        passthroughUpdateScheduled = true;
+                        requestAnimationFrame(() => {
+                            enablePassthrough();
+                            passthroughUpdateScheduled = false;
+                        });
+                    }
+                }
+                
+                // 浮动按钮拖动后刷新（实时，但使用 RAF 节流）
+                bus.on('ui:floating:moved', async () => {
+                    if (currentTool === 'pointer') {
+                        schedulePassthroughUpdate();
+                    }
+                });
+                
+                // 默认启用指针模式
+                pointer.enable();
+                currentTool = 'pointer';
+                await enablePassthrough();
+                
+                console.log('[ScreenNote] 🎯 初始化完成');
+                
+                // 导出到全局
+                window.__screenNote = {
+                    bus, canvasManager, history, pen, eraser, pointer, 
+                    floating, settings, currentTool,
+                    enablePassthrough, disablePassthrough
+                };
+                
+            }, 200);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(init, 100));
+        } else {
+            setTimeout(init, 100);
+        }
+    </script>
+</body>
+</html>

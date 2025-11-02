@@ -1,0 +1,17 @@
+{
+  "name": "screen-note",
+  "version": "0.1.0",
+  "description": "Screen Note — overlay web drawing tool",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -c-1 .",
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.1"
+  }
+}
